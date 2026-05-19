@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>@ks3rra Portfolio</title>
+</head>
+<body class="bg-[#0b0b0b] text-white font-sans p-4">
+
+    <div class="max-w-md mx-auto">
+        <h1 class="text-3xl font-black text-center mb-6 text-white uppercase tracking-tighter">
+            @ks3rra <span class="text-blue-500">Reputation</span>
+        </h1>
+
+        <h2 class="text-lg font-bold mb-3 border-l-4 border-blue-500 pl-2">Портфолио (GitHub)</h2>
+        <div id="portfolio" class="grid grid-cols-2 gap-3 mb-8">
+            </div>
+
+        <h2 class="text-lg font-bold mb-4">Живые отзывы (1324+)</h2>
+        <div id="reviews-container" class="space-y-3"></div>
+    </div>
+
+    <script>
+        // Максимально рандомные данные
+        const starts = ["крутой", "быстрый", "топовый", "надежный", "профи", "лучший", "скилловый", "дешевый"];
+        const middles = ["написал код", "сделал бота", "собрал сайт", "настроил сервер", "помог с дебагом"];
+        const ends = ["идеально", "за копейки", "быстрее всех", "без багов", "на высшем уровне"];
+        const nicks = ["vlad", "ivan", "user", "crypto", "dev", "coder", "alex", "anon", "pavel", "bot", "net", "web", "top", "max"];
+
+        // Генерация рандомных отзывов
+        const container = document.getElementById('reviews-container');
+        for (let i = 0; i < 100; i++) {
+            const div = document.createElement('div');
+            div.className = "bg-[#161616] p-4 rounded-2xl border border-white/5";
+            div.innerHTML = `
+                <div class="flex justify-between mb-2">
+                    <span class="text-[10px] text-blue-400 font-bold uppercase">${nicks[Math.floor(Math.random()*nicks.length)]}_${Math.floor(Math.random()*9999)}</span>
+                    <span class="text-[9px] text-gray-500">${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}</span>
+                </div>
+                <p class="text-sm text-gray-300">@ks3rra ${middles[Math.floor(Math.random()*middles.length)]} ${ends[Math.floor(Math.random()*ends.length)]}, ${starts[Math.floor(Math.random()*starts.length)]} работа! 🔥</p>
+            `;
+            container.appendChild(div);
+        }
+
+        // Подгрузка фото из GitHub (замените на ваш путь)
+        const portfolio = document.getElementById('portfolio');
+        const repoImages = [1, 2, 3, 4]; // Замените на список ваших файлов
+        repoImages.forEach(id => {
+            portfolio.innerHTML += `
+                <div class="bg-gray-800 rounded-xl overflow-hidden border border-white/5">
+                    <img src="https://raw.githubusercontent.com/ВАШ_НИК/ВАШ_РЕПО/main/photo${id}.jpg" class="w-full h-24 object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                    <p class="p-2 text-[10px] text-center font-bold">Проект ${id}</p>
+                </div>
+            `;
+        });
+
+        window.Telegram.WebApp.ready();
+    </script>
+</body>
+</html>
