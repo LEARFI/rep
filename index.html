@@ -5,58 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>@ks3rra Portfolio</title>
+    <title>@ks3rra | Portfolio</title>
+    <style>
+        .fp-gold { color: #ffcc00; }
+        .bg-fp-dark { background-color: #1a1a1a; }
+        .border-fp-gold { border-color: #ffcc00; }
+        .bg-fp-gold { background-color: #ffcc00; }
+        .tab-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
 </head>
-<body class="bg-[#0b0b0b] text-white font-sans p-4">
-
+<body class="bg-[#121212] text-white p-4 font-sans pb-24">
     <div class="max-w-md mx-auto">
-        <h1 class="text-3xl font-black text-center mb-6 text-white uppercase tracking-tighter">
-            @ks3rra <span class="text-blue-500">Reputation</span>
-        </h1>
-
-        <h2 class="text-lg font-bold mb-3 border-l-4 border-blue-500 pl-2">Портфолио (GitHub)</h2>
-        <div id="portfolio" class="grid grid-cols-2 gap-3 mb-8">
+        <div class="text-center mb-6 pt-4">
+            <div class="w-20 h-20 mx-auto rounded-full border-2 border-fp-gold p-1 mb-3">
+                <div class="w-full h-full rounded-full bg-fp-gold flex items-center justify-center text-black text-3xl font-black">K</div>
             </div>
+            <h1 class="text-2xl font-black text-white tracking-tight">@ks3rra</h1>
+            <p class="fp-gold text-[10px] font-bold tracking-widest uppercase mt-1">Крупная площадка | 1000+ отзывов</p>
+            <p class="text-[11px] text-gray-400 mt-2 px-4 italic">
+                Стаж работы более 3-х лет. Скупка Steam аккаунтов, регистрация SIM РФ, разработка (Python/Java). 
+                Огромный оборот, минимальные цены на рынке.
+            </p>
+        </div>
 
-        <h2 class="text-lg font-bold mb-4">Живые отзывы (1324+)</h2>
-        <div id="reviews-container" class="space-y-3"></div>
+        <div class="flex gap-2 mb-6 bg-[#1a1a1a] p-1.5 rounded-xl border border-white/5">
+            <button onclick="switchTab('guide')" id="btn-g" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-fp-gold text-black tab-transition">ИНФО</button>
+            <button onclick="switchTab('reviews')" id="btn-r" class="flex-1 py-2 text-[10px] font-bold rounded-lg tab-transition">ОТЗЫВЫ</button>
+        </div>
+
+        <div id="content-guide" class="space-y-4">
+            <div class="bg-[#1a1a1a] p-5 rounded-xl border border-white/5 text-xs text-gray-300">
+                <h3 class="text-sm font-bold mb-3 fp-gold">Наши услуги:</h3>
+                <p>• <b>Steam:</b> Скупка жирных аккаунтов по высоким ценам.</p>
+                <p>• <b>SIM (РФ):</b> МТС, Мегафон, Билайн, Tele2, Yota.</p>
+                <p>• <b>Код:</b> Скрипты Python, Java, написание ботов.</p>
+                <p>• <b>Преимущества:</b> Низкие цены, гарант, более 1000 подтвержденных сделок.</p>
+            </div>
+            <button onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/ks3rra')" class="w-full py-4 bg-fp-gold text-black rounded-xl font-black text-sm active:scale-95 transition">СВЯЗЬ (@ks3rra)</button>
+        </div>
+
+        <div id="content-reviews" class="hidden space-y-3">
+            <div class="flex gap-2 mb-2">
+                <button onclick="filterReviews('all')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">Все</button>
+                <button onclick="filterReviews('steam')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">Steam</button>
+                <button onclick="filterReviews('sim')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">SIM</button>
+            </div>
+            <div id="reviews-list" class="space-y-3"></div>
+        </div>
+
+        <button id="load-more" class="hidden w-full py-4 mt-4 border border-fp-gold/30 rounded-xl text-[10px] font-bold uppercase hover:bg-fp-gold hover:text-black transition" onclick="loadMore()">Еще отзывы</button>
     </div>
 
     <script>
-        // Максимально рандомные данные
-        const starts = ["крутой", "быстрый", "топовый", "надежный", "профи", "лучший", "скилловый", "дешевый"];
-        const middles = ["написал код", "сделал бота", "собрал сайт", "настроил сервер", "помог с дебагом"];
-        const ends = ["идеально", "за копейки", "быстрее всех", "без багов", "на высшем уровне"];
-        const nicks = ["vlad", "ivan", "user", "crypto", "dev", "coder", "alex", "anon", "pavel", "bot", "net", "web", "top", "max"];
+        let allReviews = [];
+        let filteredReviews = [];
+        let displayedCount = 0;
+        const BATCH_SIZE = 20;
 
-        // Генерация рандомных отзывов
-        const container = document.getElementById('reviews-container');
-        for (let i = 0; i < 100; i++) {
-            const div = document.createElement('div');
-            div.className = "bg-[#161616] p-4 rounded-2xl border border-white/5";
-            div.innerHTML = `
-                <div class="flex justify-between mb-2">
-                    <span class="text-[10px] text-blue-400 font-bold uppercase">${nicks[Math.floor(Math.random()*nicks.length)]}_${Math.floor(Math.random()*9999)}</span>
-                    <span class="text-[9px] text-gray-500">${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}</span>
-                </div>
-                <p class="text-sm text-gray-300">@ks3rra ${middles[Math.floor(Math.random()*middles.length)]} ${ends[Math.floor(Math.random()*ends.length)]}, ${starts[Math.floor(Math.random()*starts.length)]} работа! 🔥</p>
-            `;
-            container.appendChild(div);
+        function initReviews() {
+            const first = ["мфц", "mega", "traff", "work", "anon", "guss", "mr", "tal", "iek", "graz"];
+            const second = ["p2p", "vagin", "coder", "cs2", "skyp", "sims", "buyer", "dev"];
+            
+            const templates = [
+                "взял стим акк у @ks3rra, цены ниже рыночных, всё топ!",
+                "лучшая площадка по симкам, работают все операторы РФ без сбоев",
+                "продал акк стим, ксерра выплатил сразу. 1000+ отзывов подтверждаю",
+                "написал бота на python, @ks3rra мастер своего дела",
+                "симки Мегафон прилетели мгновенно, лучшие цены",
+                "покупаю только тут, надежная площадка",
+                "стим топ, не скам",
+                "лучший продавец, стаж реально чувствуется",
+                "@ks3rra сделал мне бота на java, код идеален",
+                "скупка акков steam по самым высоким рейтам"
+            ];
+            
+            for (let i = 0; i < 400; i++) {
+                const nick = first[i % first.length] + second[i % second.length] + Math.floor(Math.random() * 999);
+                const type = i % 2 === 0 ? 'steam' : 'sim';
+                allReviews.push({ 
+                    nick: nick, 
+                    text: templates[i % templates.length],
+                    type 
+                });
+            }
+            filteredReviews = [...allReviews];
+            loadMore();
         }
 
-        // Подгрузка фото из GitHub (замените на ваш путь)
-        const portfolio = document.getElementById('portfolio');
-        const repoImages = [1, 2, 3, 4]; // Замените на список ваших файлов
-        repoImages.forEach(id => {
-            portfolio.innerHTML += `
-                <div class="bg-gray-800 rounded-xl overflow-hidden border border-white/5">
-                    <img src="https://raw.githubusercontent.com/ВАШ_НИК/ВАШ_РЕПО/main/photo${id}.jpg" class="w-full h-24 object-cover" onerror="this.src='https://via.placeholder.com/150'">
-                    <p class="p-2 text-[10px] text-center font-bold">Проект ${id}</p>
-                </div>
-            `;
-        });
+        function filterReviews(type) {
+            displayedCount = 0;
+            document.getElementById('reviews-list').innerHTML = '';
+            filteredReviews = type === 'all' ? [...allReviews] : allReviews.filter(r => r.type === type);
+            loadMore();
+        }
 
-        window.Telegram.WebApp.ready();
+        function loadMore() {
+            const container = document.getElementById('reviews-list');
+            const end = Math.min(displayedCount + BATCH_SIZE, filteredReviews.length);
+            for (let i = displayedCount; i < end; i++) {
+                const item = filteredReviews[i];
+                const div = document.createElement('div');
+                div.className = "bg-[#1a1a1a] p-4 rounded-xl border border-white/5";
+                div.innerHTML = `
+                    <div class="text-[10px] text-gray-500 font-bold">${item.nick}</div>
+                    <div class="text-sm mt-1">${item.text.replace('@ks3rra', '<a href="https://t.me/ks3rra" class="text-yellow-500 underline font-bold">@ks3rra</a>')}</div>
+                `;
+                container.appendChild(div);
+            }
+            displayedCount = end;
+            document.getElementById('load-more').classList.toggle('hidden', displayedCount >= filteredReviews.length);
+        }
+
+        function switchTab(tab) {
+            document.getElementById('content-guide').classList.toggle('hidden', tab !== 'guide');
+            document.getElementById('content-reviews').classList.toggle('hidden', tab !== 'reviews');
+            document.getElementById('load-more').classList.toggle('hidden', tab !== 'reviews');
+        }
+
+        document.addEventListener('DOMContentLoaded', initReviews);
     </script>
 </body>
 </html>
