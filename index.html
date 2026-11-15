@@ -1,128 +1,644 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>@ks3rra | Portfolio</title>
-    <style>
-        .fp-gold { color: #ffcc00; }
-        .bg-fp-dark { background-color: #1a1a1a; }
-        .border-fp-gold { border-color: #ffcc00; }
-        .bg-fp-gold { background-color: #ffcc00; }
-        .tab-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>✦</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #19051d 0%, #09020d 55%, #030105 100%);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Тонкая плёночная текстура */
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Световой блик в центре при взрыве */
+    .flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 190, 215, 0.55), rgba(255, 46, 99, 0.15) 35%, transparent 68%);
+      transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .flash.active {
+      opacity: 1;
+      transition: opacity 0.15s ease-out;
+    }
+
+    /* 3D-сцена на весь экран — сердце всегда строго в центре */
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    /* Подсказка снизу (не сдвигает центр!) */
+    .hint {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 8vh;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .hint.hidden {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .hint-ring {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 180, 205, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: ringPulse 2.2s ease-in-out infinite;
+    }
+
+    .hint-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffb3c6;
+      box-shadow: 0 0 10px #ff4d79;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(0.92); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .hint-label {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: rgba(255, 225, 236, 0.72);
+    }
+
+    /* Центральное кинематографичное послание (без коробки) */
+    .reveal-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      pointer-events: none;
+    }
+
+    .reveal-content {
+      position: relative;
+      max-width: 680px;
+      width: 100%;
+      text-align: center;
+      padding: 36px 16px;
+    }
+
+    /* Мягкое затемнение под текстом для идеальной читаемости */
+    .reveal-content::before {
+      content: '';
+      position: absolute;
+      inset: -30px -20px;
+      background: radial-gradient(ellipse at center, rgba(10, 2, 14, 0.72) 0%, rgba(10, 2, 14, 0.3) 50%, transparent 75%);
+      opacity: 0;
+      transition: opacity 1.4s ease;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .reveal-layer.visible .reveal-content::before {
+      opacity: 1;
+    }
+
+    /* Тонкий световой луч сверху и снизу */
+    .flare-line {
+      height: 1px;
+      width: 0;
+      margin: 0 auto;
+      background: linear-gradient(90deg, transparent, rgba(255, 190, 215, 0.85), #fff, rgba(255, 190, 215, 0.85), transparent);
+      box-shadow: 0 0 16px rgba(255, 117, 140, 0.65);
+      opacity: 0;
+      transition: width 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.15s, opacity 0.8s ease 0.15s;
+    }
+
+    .reveal-layer.visible .flare-line {
+      width: min(260px, 65vw);
+      opacity: 1;
+    }
+
+    .message-title {
+      margin: 28px 0 18px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(36px, 7vw, 66px);
+      font-weight: 600;
+      line-height: 1.12;
+      letter-spacing: 0.015em;
+      background: linear-gradient(120deg, #ffffff 15%, #ffd6e0 48%, #ff758c 78%, #ffffff 98%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: blur(14px);
+      opacity: 0;
+      transform: scale(0.9) translateY(16px);
+      transition:
+        opacity 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+        transform 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+        filter 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+      animation: textGlow 6s linear infinite;
+    }
+
+    .reveal-layer.visible .message-title {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      filter: blur(0px);
+    }
+
+    @keyframes textGlow {
+      0% { background-position: 0% center; }
+      100% { background-position: 220% center; }
+    }
+
+    .message-subtitle {
+      margin-bottom: 28px;
+      font-size: clamp(13px, 2.2vw, 16px);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      line-height: 1.7;
+      color: rgba(255, 228, 238, 0.76);
+      filter: blur(8px);
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 1.2s ease 0.55s,
+        transform 1.2s ease 0.55s,
+        filter 1.2s ease 0.55s;
+    }
+
+    .reveal-layer.visible .message-subtitle {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0px);
+    }
+
+    /* Кнопка повтора анимации */
+    .replay-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 5;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 200, 220, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: rgba(255, 220, 235, 0.7);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease 1s, transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .replay-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .replay-btn:hover {
+      border-color: rgba(255, 143, 163, 0.6);
+      transform: rotate(-90deg);
+    }
+  </style>
 </head>
-<body class="bg-[#121212] text-white p-4 font-sans pb-24">
-    <div class="max-w-md mx-auto">
-        <div class="text-center mb-6 pt-4">
-            <div class="w-20 h-20 mx-auto rounded-full border-2 border-fp-gold p-1 mb-3">
-                <div class="w-full h-full rounded-full bg-fp-gold flex items-center justify-center text-black text-3xl font-black">K</div>
-            </div>
-            <h1 class="text-2xl font-black text-white tracking-tight">@ks3rra</h1>
-            <p class="fp-gold text-[10px] font-bold tracking-widest uppercase mt-1">Крупная площадка | 1000+ отзывов</p>
-            <p class="text-[11px] text-gray-400 mt-2 px-4 italic">
-                Стаж работы более 3-х лет. Скупка Steam аккаунтов, регистрация SIM РФ, разработка (Python/Java). 
-                Огромный оборот, минимальные цены на рынке.
-            </p>
-        </div>
+<body>
+  <div class="grain"></div>
+  <div class="flash" id="flash"></div>
+  <canvas id="scene"></canvas>
 
-        <div class="flex gap-2 mb-6 bg-[#1a1a1a] p-1.5 rounded-xl border border-white/5">
-            <button onclick="switchTab('guide')" id="btn-g" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-fp-gold text-black tab-transition">ИНФО</button>
-            <button onclick="switchTab('reviews')" id="btn-r" class="flex-1 py-2 text-[10px] font-bold rounded-lg tab-transition">ОТЗЫВЫ</button>
-        </div>
+  <div class="hint" id="hint">
+    <div class="hint-ring"><div class="hint-dot"></div></div>
+    <span class="hint-label">Нажми на сердце</span>
+  </div>
 
-        <div id="content-guide" class="space-y-4">
-            <div class="bg-[#1a1a1a] p-5 rounded-xl border border-white/5 text-xs text-gray-300">
-                <h3 class="text-sm font-bold mb-3 fp-gold">Наши услуги:</h3>
-                <p>• <b>Steam:</b> Скупка жирных аккаунтов по высоким ценам.</p>
-                <p>• <b>SIM (РФ):</b> МТС, Мегафон, Билайн, Tele2, Yota.</p>
-                <p>• <b>Код:</b> Скрипты Python, Java, написание ботов.</p>
-                <p>• <b>Преимущества:</b> Низкие цены, гарант, более 1000 подтвержденных сделок.</p>
-            </div>
-            <button onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/ks3rra')" class="w-full py-4 bg-fp-gold text-black rounded-xl font-black text-sm active:scale-95 transition">СВЯЗЬ (@ks3rra)</button>
-        </div>
+  <div class="reveal-layer" id="revealLayer">
+    <div class="reveal-content">
+      <div class="flare-line"></div>
 
-        <div id="content-reviews" class="hidden space-y-3">
-            <div class="flex gap-2 mb-2">
-                <button onclick="filterReviews('all')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">Все</button>
-                <button onclick="filterReviews('steam')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">Steam</button>
-                <button onclick="filterReviews('sim')" class="px-2 py-1 bg-white/10 rounded text-[9px] uppercase">SIM</button>
-            </div>
-            <div id="reviews-list" class="space-y-3"></div>
-        </div>
+      <!-- 👇 ЗАМЕНИ ТЕКСТ НИЖЕ НА СВОЙ 👇 -->
+      <h1 class="message-title">твои губы такие нежные</h1>
+      <p class="message-subtitle">сделай минчик) ✦</p>
+      <!-- 👆 КОНЕЦ БЛОКА С ТЕКСТОМ 👆 -->
 
-        <button id="load-more" class="hidden w-full py-4 mt-4 border border-fp-gold/30 rounded-xl text-[10px] font-bold uppercase hover:bg-fp-gold hover:text-black transition" onclick="loadMore()">Еще отзывы</button>
+      <div class="flare-line"></div>
     </div>
+  </div>
 
-    <script>
-        let allReviews = [];
-        let filteredReviews = [];
-        let displayedCount = 0;
-        const BATCH_SIZE = 20;
+  <button class="replay-btn" id="replayBtn" title="Повторить">↻</button>
 
-        function initReviews() {
-            const first = ["мфц", "mega", "traff", "work", "anon", "guss", "mr", "tal", "iek", "graz"];
-            const second = ["p2p", "vagin", "coder", "cs2", "skyp", "sims", "buyer", "dev"];
-            
-            const templates = [
-                "взял стим акк у @ks3rra, цены ниже рыночных, всё топ!",
-                "лучшая площадка по симкам, работают все операторы РФ без сбоев",
-                "продал акк стим, ксерра выплатил сразу. 1000+ отзывов подтверждаю",
-                "написал бота на python, @ks3rra мастер своего дела",
-                "симки Мегафон прилетели мгновенно, лучшие цены",
-                "покупаю только тут, надежная площадка",
-                "стим топ, не скам",
-                "лучший продавец, стаж реально чувствуется",
-                "@ks3rra сделал мне бота на java, код идеален",
-                "скупка акков steam по самым высоким рейтам"
-            ];
-            
-            for (let i = 0; i < 400; i++) {
-                const nick = first[i % first.length] + second[i % second.length] + Math.floor(Math.random() * 999);
-                const type = i % 2 === 0 ? 'steam' : 'sim';
-                allReviews.push({ 
-                    nick: nick, 
-                    text: templates[i % templates.length],
-                    type 
-                });
-            }
-            filteredReviews = [...allReviews];
-            loadMore();
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const hint = document.getElementById('hint');
+    const revealLayer = document.getElementById('revealLayer');
+    const flash = document.getElementById('flash');
+    const replayBtn = document.getElementById('replayBtn');
+
+    let width, height, dpr, scaleUnit;
+    let state = 'heart'; // 'heart' | 'implode' | 'revealed'
+    let stateTime = 0;
+
+    // Параметры вращения 3D-сцены
+    let rotY = 0;
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let tiltX = 0;
+    let tiltY = 0;
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      scaleUnit = Math.min(width, height) / 48;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Мягкий хрустальный аккорд (Web Audio API)
+    function playChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const audio = new AudioCtx();
+        const freqs = [392.0, 493.88, 587.33, 783.99, 987.77];
+        freqs.forEach((f, i) => {
+          const osc = audio.createOscillator();
+          const gain = audio.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, audio.currentTime + i * 0.06);
+          gain.gain.setValueAtTime(0.0001, audio.currentTime + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.055, audio.currentTime + i * 0.06 + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + i * 0.06 + 2.2);
+          osc.connect(gain);
+          gain.connect(audio.destination);
+          osc.start(audio.currentTime + i * 0.06);
+          osc.stop(audio.currentTime + i * 0.06 + 2.3);
+        });
+      } catch (e) {}
+    }
+
+    // Генератор точек 3D-сердца
+    const HEART_COUNT = width < 600 ? 750 : 1050;
+    const colors = ['#ff2e63', '#ff5c8a', '#ff8fa3', '#ffd6e0', '#ffffff'];
+    const heartParticles = [];
+
+    function createHeartParticles() {
+      heartParticles.length = 0;
+      for (let i = 0; i < HEART_COUNT; i++) {
+        const t = Math.random() * Math.PI * 2;
+        // 45% на чётком контуре, 55% внутри объёма
+        const isShell = Math.random() < 0.45;
+        const r = isShell ? 0.9 + Math.random() * 0.12 : Math.pow(Math.random(), 0.55) * 0.9;
+
+        const hx = 16 * Math.pow(Math.sin(t), 3) * r;
+        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * r;
+        // Объёмная глубина Z (выпуклая к центру)
+        const maxZ = 9 * Math.sqrt(Math.max(0.06, 1 - r * r * 0.75));
+        const hz = (Math.random() * 2 - 1) * maxZ;
+
+        // Орбитальные параметры после взрыва
+        const orbitAngle = Math.random() * Math.PI * 2;
+        const orbitRadius = 18 + Math.random() * 26;
+        const orbitY = (Math.random() - 0.5) * 28;
+
+        heartParticles.push({
+          // Базовая форма сердца
+          hx, hy, hz,
+          // Текущие 3D координаты
+          x: hx, y: hy, z: hz,
+          // Скорость при взрыве
+          vx: 0, vy: 0, vz: 0,
+          // Координаты орбиты после взрыва
+          orbitAngle,
+          orbitRadius,
+          orbitY,
+          orbitSpeed: (Math.random() * 0.004 + 0.0015) * (Math.random() > 0.5 ? 1 : -1),
+          isOrbitStar: i % 2 === 0, // половина остаётся летать галактикой, половина растворяется
+          size: isShell ? Math.random() * 1.9 + 1.1 : Math.random() * 2.2 + 0.8,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: isShell ? Math.random() * 0.4 + 0.6 : Math.random() * 0.5 + 0.25,
+          twinklePhase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    createHeartParticles();
+
+    // Космическая пыль на заднем плане
+    const bgStars = Array.from({ length: 90 }, () => ({
+      x: (Math.random() - 0.5) * 1600,
+      y: (Math.random() - 0.5) * 1600,
+      z: Math.random() * 900 + 100,
+      size: Math.random() * 1.6 + 0.4,
+      alpha: Math.random() * 0.5 + 0.15
+    }));
+
+    // Вспышки-фейерверки при тапах
+    const bursts = [];
+    const shockwaves = [];
+
+    function spawnTapBurst(screenX, screenY, amount = 26) {
+      for (let i = 0; i < amount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 1.5;
+        bursts.push({
+          x: screenX,
+          y: screenY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.2,
+          size: Math.random() * 3 + 1.2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.018 + 0.012
+        });
+      }
+      shockwaves.push({
+        x: screenX,
+        y: screenY,
+        r: 10,
+        maxR: Math.min(width, height) * 0.35,
+        alpha: 0.75
+      });
+    }
+
+    // Запуск взрыва сердца
+    function triggerExplosion() {
+      if (state !== 'heart') return;
+      state = 'implode';
+      stateTime = 0;
+      hint.classList.add('hidden');
+      playChime();
+
+      // Через 200мс — мощный взрыв сверхновой
+      setTimeout(() => {
+        state = 'revealed';
+        stateTime = 0;
+
+        flash.classList.add('active');
+        setTimeout(() => flash.classList.remove('active'), 160);
+
+        shockwaves.push(
+          { x: width / 2, y: height / 2, r: 10, maxR: Math.max(width, height) * 0.65, alpha: 0.9 },
+          { x: width / 2, y: height / 2, r: 10, maxR: Math.max(width, height) * 0.45, alpha: 0.6 }
+        );
+
+        for (const p of heartParticles) {
+          const len = Math.hypot(p.x, p.y, p.z) || 1;
+          const power = Math.random() * 1.4 + 0.5;
+          p.vx = (p.x / len) * power + (Math.random() - 0.5) * 0.4;
+          p.vy = (p.y / len) * power + (Math.random() - 0.5) * 0.4;
+          p.vz = (p.z / len) * power + (Math.random() - 0.5) * 0.4;
         }
 
-        function filterReviews(type) {
-            displayedCount = 0;
-            document.getElementById('reviews-list').innerHTML = '';
-            filteredReviews = type === 'all' ? [...allReviews] : allReviews.filter(r => r.type === type);
-            loadMore();
+        setTimeout(() => {
+          revealLayer.classList.add('visible');
+          replayBtn.classList.add('visible');
+        }, 420);
+      }, 210);
+    }
+
+    // Повтор анимации
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      revealLayer.classList.remove('visible');
+      replayBtn.classList.remove('visible');
+      state = 'heart';
+      stateTime = 0;
+      createHeartParticles();
+      setTimeout(() => hint.classList.remove('hidden'), 300);
+    });
+
+    // Реакция на мышь / тач
+    window.addEventListener('mousemove', (e) => {
+      targetTiltY = ((e.clientX / width) - 0.5) * 0.65;
+      targetTiltX = ((e.clientY / height) - 0.5) * -0.45;
+    });
+
+    canvas.addEventListener('click', (e) => {
+      if (state === 'heart') {
+        triggerExplosion();
+      } else if (state === 'revealed') {
+        spawnTapBurst(e.clientX, e.clientY, 28);
+      }
+    });
+
+    // Главный цикл 3D-рендера
+    let lastTime = performance.now();
+
+    function loop(now) {
+      const dt = Math.min((now - lastTime) / 16.67, 2.5);
+      lastTime = now;
+      stateTime += dt;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Плавный наклон за курсором
+      tiltX += (targetTiltX - tiltX) * 0.06;
+      tiltY += (targetTiltY - tiltY) * 0.06;
+      rotY += (state === 'heart' ? 0.0085 : 0.0025) * dt;
+
+      const cx = width / 2;
+      const cy = height / 2;
+      const fov = 55;
+
+      // Включаем аддитивное свечение
+      ctx.globalCompositeOperation = 'lighter';
+
+      // 1. Фоновые 3D-звёзды
+      for (const s of bgStars) {
+        s.z -= 0.45 * dt;
+        if (s.z < 10) s.z = 950;
+        const proj = 350 / s.z;
+        const sx = cx + s.x * proj;
+        const sy = cy + s.y * proj;
+        if (sx < -20 || sx > width + 20 || sy < -20 || sy > height + 20) continue;
+
+        ctx.globalAlpha = s.alpha * Math.min(1, (950 - s.z) / 300);
+        ctx.fillStyle = '#ffd6e0';
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.size * proj * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 2. Ритм сердцебиения
+      const tSec = now * 0.001;
+      const beat =
+        1 +
+        0.075 * Math.pow(Math.max(0, Math.sin(tSec * 2.6)), 8) +
+        0.045 * Math.pow(Math.max(0, Math.sin(tSec * 2.6 - 0.55)), 8);
+
+      const angleY = rotY + tiltY;
+      const angleX = tiltX;
+      const cosY = Math.cos(angleY);
+      const sinY = Math.sin(angleY);
+      const cosX = Math.cos(angleX);
+      const sinX = Math.sin(angleX);
+
+      // 3. Обновление и 3D-проекция частиц сердца
+      for (const p of heartParticles) {
+        p.twinklePhase += 0.05 * dt;
+
+        if (state === 'heart') {
+          // Слегка смещено по Y вверх на -1.5 единицы только чтобы центр тяжести сердца визуально совпал с серединой
+          const tx = p.hx * beat;
+          const ty = (p.hy + 1.2) * beat;
+          const tz = p.hz * beat;
+
+          p.x += (tx - p.x) * 0.16 * dt;
+          p.y += (ty - p.y) * 0.16 * dt;
+          p.z += (tz - p.z) * 0.16 * dt;
+        } else if (state === 'implode') {
+          p.x *= 0.82;
+          p.y *= 0.82;
+          p.z *= 0.82;
+        } else if (state === 'revealed') {
+          if (p.isOrbitStar) {
+            // Плавно уходим в спокойную орбитальную галактику вокруг текста
+            p.orbitAngle += p.orbitSpeed * dt;
+            const targetX = Math.cos(p.orbitAngle) * p.orbitRadius;
+            const targetZ = Math.sin(p.orbitAngle) * p.orbitRadius;
+            const targetY = p.orbitY + Math.sin(p.orbitAngle * 2) * 3;
+
+            p.vx *= 0.92;
+            p.vy *= 0.92;
+            p.vz *= 0.92;
+
+            p.x += p.vx * dt + (targetX - p.x) * 0.025 * dt;
+            p.y += p.vy * dt + (targetY - p.y) * 0.025 * dt;
+            p.z += p.vz * dt + (targetZ - p.z) * 0.025 * dt;
+          } else {
+            // Взрывные частицы разлетаются и затухают
+            p.vx *= 0.965;
+            p.vy *= 0.965;
+            p.vz *= 0.965;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.z += p.vz * dt;
+            p.alpha *= 0.955;
+          }
         }
 
-        function loadMore() {
-            const container = document.getElementById('reviews-list');
-            const end = Math.min(displayedCount + BATCH_SIZE, filteredReviews.length);
-            for (let i = displayedCount; i < end; i++) {
-                const item = filteredReviews[i];
-                const div = document.createElement('div');
-                div.className = "bg-[#1a1a1a] p-4 rounded-xl border border-white/5";
-                div.innerHTML = `
-                    <div class="text-[10px] text-gray-500 font-bold">${item.nick}</div>
-                    <div class="text-sm mt-1">${item.text.replace('@ks3rra', '<a href="https://t.me/ks3rra" class="text-yellow-500 underline font-bold">@ks3rra</a>')}</div>
-                `;
-                container.appendChild(div);
-            }
-            displayedCount = end;
-            document.getElementById('load-more').classList.toggle('hidden', displayedCount >= filteredReviews.length);
-        }
+        if (p.alpha < 0.015) continue;
 
-        function switchTab(tab) {
-            document.getElementById('content-guide').classList.toggle('hidden', tab !== 'guide');
-            document.getElementById('content-reviews').classList.toggle('hidden', tab !== 'reviews');
-            document.getElementById('load-more').classList.toggle('hidden', tab !== 'reviews');
-        }
+        // 3D-поворот вокруг Y и X
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.z * cosY + p.x * sinY;
+        const y2 = p.y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + p.y * sinX;
 
-        document.addEventListener('DOMContentLoaded', initReviews);
-    </script>
+        const perspective = fov / (fov + z2);
+        if (perspective <= 0) continue;
+
+        const screenX = cx + x1 * scaleUnit * perspective;
+        const screenY = cy + y2 * scaleUnit * perspective;
+        const radius = Math.max(0.4, p.size * perspective * (width < 600 ? 0.85 : 1.05));
+        const twinkle = 0.72 + 0.28 * Math.sin(p.twinklePhase);
+
+        ctx.globalAlpha = Math.min(1, p.alpha * twinkle * (state === 'implode' ? 1.4 : 1));
+        ctx.fillStyle = state === 'implode' ? '#ffffff' : p.color;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 4. Ударные световые кольца
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.r += (sw.maxR - sw.r) * 0.08 * dt + 2;
+        sw.alpha *= 0.93;
+        if (sw.alpha < 0.01) {
+          shockwaves.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = sw.alpha;
+        ctx.strokeStyle = '#ffb3c6';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 5. Мини-салюты при кликах после открытия
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const b = bursts[i];
+        b.vx *= 0.96;
+        b.vy = b.vy * 0.96 + 0.06;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.alpha -= b.decay * dt;
+        if (b.alpha <= 0) {
+          bursts.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = b.alpha;
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
 </body>
 </html>
