@@ -25,7 +25,6 @@
       user-select: none;
     }
 
-    /* Кинематографичный шум */
     .grain {
       position: fixed;
       inset: 0;
@@ -35,14 +34,13 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
-    /* Мощная световая вспышка */
     .flash {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 2;
       opacity: 0;
-      background: radial-gradient(circle at 50% 50%, rgba(255, 200, 230, 0.85), rgba(255, 30, 100, 0.35) 40%, transparent 75%);
+      background: radial-gradient(circle at 50% 50%, rgba(255, 200, 230, 0.9), rgba(255, 30, 100, 0.4) 40%, transparent 75%);
       transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -60,7 +58,6 @@
       cursor: pointer;
     }
 
-    /* Интерактивная подсказка */
     .hint {
       position: fixed;
       left: 0;
@@ -114,7 +111,6 @@
       text-shadow: 0 0 10px rgba(255, 50, 100, 0.5);
     }
 
-    /* Блок текста */
     .reveal-layer {
       position: fixed;
       inset: 0;
@@ -125,7 +121,7 @@
       padding: 28px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.8s ease;
+      transition: opacity 0.6s ease;
     }
 
     .reveal-layer.visible {
@@ -155,7 +151,7 @@
       margin: 0 auto;
       background: linear-gradient(90deg, transparent, rgba(255, 180, 210, 0.9), #fff, rgba(255, 180, 210, 0.9), transparent);
       box-shadow: 0 0 20px rgba(255, 100, 130, 0.8);
-      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+      transition: width 1s cubic-bezier(0.16, 1, 0.3, 1) 0.05s;
     }
 
     .reveal-layer.visible .flare-line {
@@ -176,7 +172,7 @@
       filter: drop-shadow(0 0 25px rgba(255, 77, 121, 0.5));
       transform: scale(0.85) translateY(20px);
       opacity: 0;
-      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 1s ease 0.15s;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.05s, opacity 0.8s ease 0.05s;
       animation: textShine 5s linear infinite;
     }
 
@@ -200,7 +196,7 @@
       text-shadow: 0 0 12px rgba(255, 100, 150, 0.4);
       transform: translateY(15px);
       opacity: 0;
-      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, opacity 1s ease 0.3s;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 0.8s ease 0.15s;
     }
 
     .reveal-layer.visible .message-subtitle {
@@ -208,7 +204,6 @@
       opacity: 1;
     }
 
-    /* Кнопка переключения / далее */
     .next-btn {
       position: fixed;
       bottom: 28px;
@@ -233,7 +228,7 @@
       opacity: 0;
       pointer-events: none;
       box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
-      transition: opacity 0.6s ease 0.4s, transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+      transition: opacity 0.5s ease 0.2s, transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
     }
 
     .next-btn.visible {
@@ -280,7 +275,7 @@
       },
       {
         title: "можно и просто дать",
-        subtitle: "с хорошим окончанием ✨"
+        subtitle: "с окончанием ✨"
       },
       {
         title: "ну от первого не откажусь",
@@ -307,7 +302,7 @@
     const nextBtn = document.getElementById('nextBtn');
 
     let width, height, dpr, scaleUnit;
-    let state = 'heart'; // 'heart' | 'exploding' | 'revealed'
+    let state = 'heart'; 
     let stateTime = 0;
 
     let rotY = 0;
@@ -329,17 +324,15 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // 💥 МАКСИМАЛЬНО МОЩНАЯ ВИБРАЦИЯ ТЕЛЕФОНА
+    // 💥 УСИЛЕННАЯ ВИБРАЦИЯ (серия мощных импульсов)
     function triggerStrongVibration() {
       try {
         if (navigator.vibrate) {
-          // Интенсивный паттерн: мощный удар, пауза, серия дрожаний
-          navigator.vibrate([70, 40, 120, 50, 200]);
+          navigator.vibrate([80, 50, 140, 60, 220]);
         }
       } catch (e) {}
     }
 
-    // Очень нежный, волшебный звон колокольчиков
     function playMagicChime() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -401,7 +394,6 @@
 
     createHeartParticles();
 
-    // Красивая глубокая космическая пыль
     const bgStars = Array.from({ length: 120 }, () => ({
       x: (Math.random() - 0.5) * 1800,
       y: (Math.random() - 0.5) * 1800,
@@ -438,7 +430,7 @@
       });
     }
 
-    // Мгновенный взрыв сердца и появление текста в тот же миг
+    // Мгновенный взрыв сердца и моментальный показ текста
     function triggerExplosion() {
       if (state !== 'heart') return;
       state = 'exploding';
@@ -448,10 +440,10 @@
       playMagicChime();
       triggerStrongVibration();
 
-      // Текст и вспышка появляются СРАЗУ же
       flash.classList.add('active');
       setTimeout(() => flash.classList.remove('active'), 200);
 
+      // Текст и кнопка появляются СРАЗУ же без задержек
       revealLayer.classList.add('visible');
       nextBtn.classList.add('visible');
 
@@ -473,7 +465,7 @@
       }, 350);
     }
 
-    // Переход к следующему тексту и сборка нового сердца
+    // Переход к следующему тексту
     function nextMessage(e) {
       if (e) e.stopPropagation();
       if (state === 'heart' || state === 'exploding') return;
@@ -484,14 +476,13 @@
       revealLayer.classList.remove('visible');
       nextBtn.classList.remove('visible');
 
-      // Переключаем текст
       currentMsgIndex = (currentMsgIndex + 1) % messages.length;
       updateTextContent();
 
       state = 'heart';
       stateTime = 0;
       createHeartParticles();
-      setTimeout(() => hint.classList.remove('hidden'), 400);
+      setTimeout(() => hint.classList.remove('hidden'), 300);
     }
 
     nextBtn.addEventListener('click', nextMessage);
@@ -505,7 +496,6 @@
       if (state === 'heart') {
         triggerExplosion();
       } else if (state === 'revealed') {
-        // Клик в режиме открытки делает фейерверк и переключает на следующий текст
         spawnTapBurst(e.clientX, e.clientY, 35);
         nextMessage(e);
       }
@@ -530,7 +520,6 @@
 
       ctx.globalCompositeOperation = 'lighter';
 
-      // 1. Космические звёзды с мерцанием
       for (const s of bgStars) {
         s.z -= 0.5 * dt;
         if (s.z < 10) s.z = 1000;
@@ -546,7 +535,6 @@
         ctx.fill();
       }
 
-      // 2. Сердцебиение
       const tSec = now * 0.001;
       const beat =
         1 +
@@ -560,7 +548,6 @@
       const cosX = Math.cos(angleX);
       const sinX = Math.sin(angleX);
 
-      // 3. Частицы сердца
       for (const p of heartParticles) {
         p.twinklePhase += 0.06 * dt;
 
@@ -626,7 +613,6 @@
         ctx.fill();
       }
 
-      // 4. Ударные волны
       for (let i = shockwaves.length - 1; i >= 0; i--) {
         const sw = shockwaves[i];
         sw.r += (sw.maxR - sw.r) * 0.09 * dt + 2.5;
@@ -643,7 +629,6 @@
         ctx.stroke();
       }
 
-      // 5. Салюты при кликах
       for (let i = bursts.length - 1; i >= 0; i--) {
         const b = bursts[i];
         b.vx *= 0.95;
